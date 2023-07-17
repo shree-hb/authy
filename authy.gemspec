@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = "Gem build on Devise engine"
   spec.description = "Gem build on Devise engine"
-  spec.homepage = "Gem build on Devise engine"
+  spec.homepage = "https://github.com/shree-hb/authy"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 2.6.0"
 
