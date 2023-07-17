@@ -1,8 +1,13 @@
 # frozen_string_literal: true
 
 require_relative "authy/version"
+require "authy/engine"
+require "active_support/dependencies"
 
 module Authy
-  class Error < StandardError; end
-  # Your code goes here...
+ 
+  def self.mounted_path
+    ::Authy::Engine.mounted_path
+  end
+
 end
