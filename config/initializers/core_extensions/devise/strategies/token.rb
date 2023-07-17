@@ -1,15 +1,15 @@
 module Devise
   module Strategies
-    class JsonWebToken < Base
+    class Token < Base
 
       def valid?
-        bearer_header.present?
+        cookies[:secure_token].present?
       end
 
       def store?
         false
       end
-
+      
       def authenticate!
         return generate_new_token if no_claims
 
@@ -31,7 +31,7 @@ module Devise
       private
 
       def bearer_header
-        request.headers['Authorization']&.to_s
+        cookies[:secure_token]&.to_s
       end
 
       def is_blacklisted?

@@ -244,7 +244,9 @@ Devise.setup do |config|
   config.warden do |manager|
     # manager.intercept_401 = false
     manager.strategies.add :jwt, Devise::Strategies::JsonWebToken
+    manager.strategies.add :token, Devise::Strategies::Token
     manager.default_strategies(scope: :user).unshift :jwt
+    manager.default_strategies(scope: :user).unshift :token
     manager.default_strategies(scope: :provider).unshift :jwt
     manager.default_strategies(scope: :patient).unshift :jwt
     manager.default_strategies(scope: :caregiver).unshift :jwt

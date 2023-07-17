@@ -180,6 +180,8 @@ module Authy
         httponly: true,
         secure: true
       }
+      is_from_internal = params[:is_from_crudify] == "1"
+      cookies[:secure_token] = 'Bearer ' + @token if is_from_internal
       traits = {
         platform: platform,
         type: @user.is_a?(Provider) ? 'Provider' : @user.is_a?(PatientAdvocate) ? 'Advisor' : @user.type
