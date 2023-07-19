@@ -35,7 +35,11 @@ module Authy
     def destroy
       puts '***************** DESTROY  ::  from Login engine ************************'
 
-      jwt_token = request.headers["Authorization"]&.split(" ")[1]
+      jwt_token = if cookies[:secure_token]
+                    cookies[:secure_token].split(" ")[1]
+                  else
+                    request.headers["Authorization"]&.split(" ")[1]
+                  end
       JwtWrapper.blacklist(jwt_token)
 
       refresh_token = cookies[:refresh_token]
@@ -78,7 +82,12 @@ module Authy
         @resource.provider = "email"
       end
       @resource.save
-      render "user/login_info"
+
+      if cookies[:secure_token].present?
+        redirect_to "/crudify/cruds"
+      else
+        render "user/login_info"
+      end
     end
   
     def find_resource(field, value)
@@ -180,8 +189,10 @@ module Authy
         httponly: true,
         secure: true
       }
+
       is_from_internal = params[:is_from_crudify] == "1"
       cookies[:secure_token] = 'Bearer ' + @token if is_from_internal
+      
       traits = {
         platform: platform,
         type: @user.is_a?(Provider) ? 'Provider' : @user.is_a?(PatientAdvocate) ? 'Advisor' : @user.type
@@ -190,6 +201,7 @@ module Authy
         traits[:user_type] = @user.user_type
         traits[:is_super_user] = @user.has_super_user_privileges
       end
+      
       AnalyticsService.track(@user.segment_id, AnalyticsService::EVENTS[:signed_in], traits )
       render_create_success
     end
