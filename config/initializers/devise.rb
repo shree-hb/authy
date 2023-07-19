@@ -250,6 +250,7 @@ Devise.setup do |config|
     manager.default_strategies(scope: :provider).unshift :jwt
     manager.default_strategies(scope: :patient).unshift :jwt
     manager.default_strategies(scope: :caregiver).unshift :jwt
+    manager.default_strategies(scope: :patient_advocate).unshift :jwt
   end
 
   # ==> Mountable engine configurations

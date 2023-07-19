@@ -45,7 +45,8 @@ module Authy
       refresh_token = cookies[:refresh_token]
       JwtWrapper.blacklist_refresh_token(refresh_token)
       cookies.delete(:refresh_token)
-  
+      cookies.delete(:secure_token)
+
       # current_user.notification_preference = 'SmsNotification' if current_user.logged_in_mobile_devices.blank?
       UserActivity.find_by(token: refresh_token).try(:destroy)
       if current_user.is_a?(Caregiver)
@@ -63,7 +64,11 @@ module Authy
         AnalyticsService.track(current_user.segment_id, AnalyticsService::EVENTS[:signed_out], {platform: params[:platform] || request.headers[:platform]})
       end
       puts '***************** DESTROY  ::  from Login engine ************************'
-      super
+      if params[:sign_out_path].present?
+        redirect_to params[:sign_out_path]
+      else
+        super
+      end
     end
   
     def render_create_success
