@@ -88,7 +88,7 @@ module Authy
       end
       @resource.save
 
-      if cookies[:secure_token].present?
+      if cookies[:secure_token].present? && @is_from_internal
         redirect_to "/crudify/cruds"
       else
         render "user/login_info"
@@ -163,8 +163,10 @@ module Authy
     def create_session_for_real_user
       return unless @user && @user.valid_for_authentication? { @user.valid_password?(params[:password]) }
       platform = params[:platform] || request.headers[:platform]
-      if @user && (@user.type == "Patient" || @user.type == "Caregiver") && platform && platform.downcase == "web" && !params[:is_existing_user]
-        return render json: {errors: [I18n.t('devise_token_auth.sessions.invalid_user_type_platform_login')]}, status: 400
+      if !Rails.application.config.authy[:with_patient_web_app]
+        if @user && (@user.type == "Patient" || @user.type == "Caregiver") && platform && platform.downcase == "web" && !params[:is_existing_user]
+         return render json: {errors: [I18n.t('devise_token_auth.sessions.invalid_user_type_platform_login')]}, status: 400
+        end
       end
       if Rails.application.config.two_factor_authentication
         is_successful, return_code = UserVerificationService.verify_otp(@user, params[:code], phone_number: @user.contact_number)
@@ -195,9 +197,9 @@ module Authy
         secure: true
       }
 
-      is_from_internal = params[:is_from_crudify] == "1"
-      cookies[:secure_token] = 'Bearer ' + @token if is_from_internal
-      
+      @is_from_internal = params[:is_from_crudify] == "1"
+      cookies[:secure_token] = 'Bearer ' + @token if @is_from_internal
+
       traits = {
         platform: platform,
         type: @user.is_a?(Provider) ? 'Provider' : @user.is_a?(PatientAdvocate) ? 'Advisor' : @user.type
