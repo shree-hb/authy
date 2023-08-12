@@ -16,7 +16,9 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
 ## Usage
 
-TODO: Write usage instructions here
+To Generate Initializer, run below rake. This will generate content_engine.rb in the root app's initializer folder.
+  
+    $ rake authy:generate_initializer
 
 ## Development
 
